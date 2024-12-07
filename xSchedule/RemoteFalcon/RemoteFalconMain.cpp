@@ -768,6 +768,49 @@ bool RemoteFalconFrame::SendCommand(const std::string& command, const std::strin
         msg = "Remote Falcon: Unknown playlist when trying to set playlist to " + parameters;
         return false;
     }
+    // Interupt schedule
+    if (command == "interrupt_schedule") {
+        if (parameters == "on") {
+            
+            _options.SetImmediatelyInterrupt(true);
+            SaveOptions();
+            LoadOptions();
+            AddMessage(MESSAGE_LEVEL::ML_INFO, "Interrupt Schedule: " + parameters);
+            
+            ValidateWindow();
+            return true;
+        } else if (parameters == "off") {
+            
+            _options.SetImmediatelyInterrupt(false);
+            SaveOptions();
+            LoadOptions();
+            AddMessage(MESSAGE_LEVEL::ML_INFO, "Interrupt Schedule: " + parameters);
+            
+            ValidateWindow();
+            return true;
+        }
+
+        else {
+            msg = "Remote Falcon: Interrupt unknown: " + parameters;
+            return false;
+        }
+    }
+    // Viewer Control
+    if (command == "viewer_control") {
+        if (parameters == "start") {
+            Start();
+            Button_Pause->SetLabel("Stop");
+            return true;
+        } else if (parameters == "stop") {
+            Stop();
+            Button_Pause->SetLabel("Start");
+            return true;
+        }
+
+        else {
+            msg = "Remote Falcon: Viewer Control unknown: " + parameters;
+            return false;
+    }
     else         {
         msg = "Remote Falcon: Unknown command";
         return false;
