@@ -768,8 +768,69 @@ bool RemoteFalconFrame::SendCommand(const std::string& command, const std::strin
         msg = "Remote Falcon: Unknown playlist when trying to set playlist to " + parameters;
         return false;
     }
+    // Interupt schedule
+    else if (command == "interrupt_schedule") {
+        if (parameters == "on") {
+            
+            _options.SetImmediatelyInterrupt(true);
+            SaveOptions();
+            LoadOptions();
+            AddMessage(MESSAGE_LEVEL::ML_INFO, "Interrupt Schedule: " + parameters);
+            
+            return true;
+        } else if (parameters == "off") {
+            
+            _options.SetImmediatelyInterrupt(false);
+            SaveOptions();
+            LoadOptions();
+            AddMessage(MESSAGE_LEVEL::ML_INFO, "Interrupt Schedule: " + parameters);
+            
+            return true;
+        } else {
+            msg = "Remote Falcon: Interrupt unknown: " + parameters;
+            return false;
+        }
+    }
+        // Viewer Control
+    else if (command == "viewer_control") {
+            if (parameters == "start") {
+                AddMessage(MESSAGE_LEVEL::ML_INFO, "Asking remote falcon to enable viewer control.");
+                AddMessage(MESSAGE_LEVEL::ML_INFO, "    " + _remoteFalcon->EnableViewerControl(true));
+                _viewerControlEnabled = true;
+                return true;
+            } else if (parameters == "stop") {
+                AddMessage(MESSAGE_LEVEL::ML_INFO, "Asking remote falcon to enable viewer control.");
+                AddMessage(MESSAGE_LEVEL::ML_INFO, "    " + _remoteFalcon->EnableViewerControl(false));
+                _viewerControlEnabled = false;
+                return true;
+            } else {
+                msg = "Remote Falcon: Viewer Control unknown: " + parameters;
+                return false;
+            }
+    } else if (command == "enable") {
+        if (parameters == "start") {
+            AddMessage(MESSAGE_LEVEL::ML_INFO, "Asking remote falcon to start.");
+            Start();
+            return true;
+        } else if (parameters == "stop") {
+            AddMessage(MESSAGE_LEVEL::ML_INFO, "Asking remote falcon to stop.");
+            Stop();
+            return true;
+        } else {
+            msg = "Remote Falcon: Viewer Control unknown: " + parameters;
+            return false;
+        }
+    } else if (command == "purge_queue") {
+        msg = "Remote Falcon: Purging Queue";
+        AddMessage(MESSAGE_LEVEL::ML_INFO, "Asking remote falcon to purge Queue.");
+        _remoteFalcon->PurgeQueue();
+        return true;
+    }
+
+
+    
     else         {
-        msg = "Remote Falcon: Unknown command";
+        msg = "Remote Falcon: Unknown command: " + command;
         return false;
     }
     return true;
