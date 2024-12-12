@@ -799,7 +799,7 @@ bool RemoteFalconFrame::SendCommand(const std::string& command, const std::strin
                 _viewerControlEnabled = true;
                 return true;
             } else if (parameters == "stop") {
-                AddMessage(MESSAGE_LEVEL::ML_INFO, "Asking remote falcon to enable viewer control.");
+                AddMessage(MESSAGE_LEVEL::ML_INFO, "Asking remote falcon to disable viewer control.");
                 AddMessage(MESSAGE_LEVEL::ML_INFO, "    " + _remoteFalcon->EnableViewerControl(false));
                 _viewerControlEnabled = false;
                 return true;
@@ -807,22 +807,38 @@ bool RemoteFalconFrame::SendCommand(const std::string& command, const std::strin
                 msg = "Remote Falcon: Viewer Control unknown: " + parameters;
                 return false;
             }
+     // Listener enable
     } else if (command == "enable") {
         if (parameters == "start") {
-            AddMessage(MESSAGE_LEVEL::ML_INFO, "Asking remote falcon to start.");
+            AddMessage(MESSAGE_LEVEL::ML_INFO, "Asking remote falcon to start Listener.");
             Start();
             return true;
         } else if (parameters == "stop") {
-            AddMessage(MESSAGE_LEVEL::ML_INFO, "Asking remote falcon to stop.");
+            AddMessage(MESSAGE_LEVEL::ML_INFO, "Asking remote falcon to stop Listener.");
             Stop();
             return true;
         } else {
-            msg = "Remote Falcon: Viewer Control unknown: " + parameters;
+            msg = "Remote Falcon: Listener unknown: " + parameters;
             return false;
         }
+        //Managed PSA
+    } else if (command == "managed_psa") {
+        if (parameters == "on") {
+            AddMessage(MESSAGE_LEVEL::ML_INFO, "Asking remote falcon to enable Managaed PSA.");
+            _remoteFalcon->EnableMangaedPSA(true);
+            return true;
+        } else if (parameters == "off") {
+            AddMessage(MESSAGE_LEVEL::ML_INFO, "Asking remote falcon to disable Managed PSA.");
+            _remoteFalcon->EnableMangaedPSA(false);
+            return true;
+        } else {
+            msg = "Remote Falcon: Managed PSA unknown: " + parameters;
+            return false;
+        }
+        //Purge Queue
     } else if (command == "purge_queue") {
         msg = "Remote Falcon: Purging Queue";
-        AddMessage(MESSAGE_LEVEL::ML_INFO, "Asking remote falcon to purge Queue.");
+        AddMessage(MESSAGE_LEVEL::ML_INFO, "Asking remote falcon to purge Queue." + _remoteFalcon->PurgeQueue());
         _remoteFalcon->PurgeQueue();
         return true;
     }
