@@ -262,9 +262,7 @@ RemoteFalconFrame::RemoteFalconFrame(wxWindow* parent, const std::string& showDi
 
     if (_options.GetClearQueueOnStart()) {
         AddMessage(MESSAGE_LEVEL::ML_INFO, "Clearing remote falcon list of songs.");
-        int tries = 10;
-        bool done = false;
-        do {
+        
             auto res = _remoteFalcon->PurgeQueue();
             AddMessage(MESSAGE_LEVEL::ML_INFO, "    " + res);
 
@@ -274,21 +272,12 @@ RemoteFalconFrame::RemoteFalconFrame(wxWindow* parent, const std::string& showDi
 
             if (!val.IsNull()) {
                 if (val["message"].AsString() == "Success") {
-                    done = true;
-                }
-                else if (val["message"].AsString() == "Unauthorized") {
-                    tries = 1;
+                    AddMessage(MESSAGE_LEVEL::ML_INFO, "RemoteFalcon Playlist cleared");
+                } else {
                     AddMessage(MESSAGE_LEVEL::ML_ERROR, "Error: " + val["message"].AsString());
                 }
-            }
-            tries--;
-        } while (!done && tries > 0);
-
-        if (tries == 0) {
-            logger_base.warn("RemoteFalcon failed to clear existing list of songs.");
-        }
+            } 
     }
-
     ValidateWindow();
 }
 
@@ -847,7 +836,22 @@ bool RemoteFalconFrame::SendCommand(const std::string& command, const std::strin
         //Purge Queue
     } else if (command == "purge_queue") {
         msg = "Remote Falcon: Purging Queue";
-        AddMessage(MESSAGE_LEVEL::ML_INFO, "Asking remote falcon to purge Queue." + _remoteFalcon->PurgeQueue());
+        AddMessage(MESSAGE_LEVEL::ML_INFO, "Clearing remote falcon list of songs.");
+
+        auto res = _remoteFalcon->PurgeQueue();
+        AddMessage(MESSAGE_LEVEL::ML_INFO, "    " + res);
+
+        wxJSONReader reader;
+        wxJSONValue val;
+        reader.Parse(res, &val);
+
+        if (!val.IsNull()) {
+            if (val["message"].AsString() == "Success") {
+                AddMessage(MESSAGE_LEVEL::ML_INFO, "RemoteFalcon Playlist cleared");
+            } else {
+                AddMessage(MESSAGE_LEVEL::ML_ERROR, "Error: " + val["message"].AsString());
+            }
+        } 
         return true;
     }   
     else         {
